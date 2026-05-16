@@ -297,6 +297,7 @@ footer{text-align:center;color:var(--text2);font-size:.75rem;margin-top:32px;pad
 
   <div class="nav-btns" style="flex-wrap:wrap">
     <button class="btn btn-secondary" onclick="goSection(6)">← Edit Answers</button>
+    <button class="btn btn-primary" onclick="shareWithLiz()">📱 Text Liz</button>
     <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
     <button class="btn btn-secondary" onclick="copyResults()" style="flex:0">📋 Copy Results</button>
     <button class="btn btn-secondary" onclick="downloadResults()" style="flex:0">💾 Download JSON</button>
@@ -1368,6 +1369,47 @@ function copyResults() {
     document.execCommand('copy');
     ta.remove();
     alert('Results copied to clipboard!');
+  });
+}
+
+// Share with Liz — copies type + function stack + note to text her
+function shareWithLiz() {
+  const type = document.getElementById('topType')?.querySelector('h2')?.textContent || 'Unknown';
+  const desc = document.getElementById('topType')?.querySelector('p')?.textContent || '';
+  const lines = [
+    '🧠 Cognitive Function Assessment Results',
+    '━━━━━━━━━━━━━━━━━━━━━━',
+    'Type: ' + type,
+    desc.trim() ? desc.trim() : '',
+    '',
+    '--- Function Scores ---',
+  ];
+  document.querySelectorAll('.stack-item').forEach(function(el) {
+    const pos = el.querySelector('.stack-pos')?.textContent || '';
+    const fn = el.querySelector('.fn-name')?.textContent || '';
+    const score = el.querySelector('.fn-score')?.textContent || '';
+    if(fn) lines.push(pos + ': ' + fn + ' (' + score + ')');
+  });
+  const energyProf = document.getElementById('energyProfile')?.textContent?.trim() || '';
+  if(energyProf) {
+    lines.push('');
+    lines.push('🔋 Energy: ' + energyProf);
+  }
+  lines.push('');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('📱 Text this to Liz');
+
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    alert('Results copied! 📱 Text this to Liz');
+  }).catch(function() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    alert('Results copied! 📱 Text this to Liz');
   });
 }
 
