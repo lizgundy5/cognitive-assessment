@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Function Assessment v4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d0f14;--card:#161920;--card2:#1e2430;--border:#2a3040;--text:#d4d8e0;--text2:#8890a0;--accent:#e8a040;--accent2:#c48830;--teal:#40b8a0;--rose:#d46070;--purple:#8870c0;--frost:#60c0d0;--font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;padding:20px}
+.container{max-width:780px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:600;color:var(--accent);margin-bottom:4px}
+.subtitle{color:var(--text2);font-size:0.9rem;margin-bottom:24px}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;margin-bottom:28px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:4px;transition:width .4s ease;width:0%}
+.section-nav{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.section-dot{width:28px;height:28px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text2);transition:.2s;cursor:default;font-weight:600}
+.section-dot.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.section-dot.done{background:var(--teal);color:#000;border-color:var(--teal)}
+
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:1.2rem;font-weight:600;color:var(--accent);margin-bottom:6px}
+.section-desc{color:var(--text2);font-size:.88rem;margin-bottom:20px;line-height:1.5}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card.highlight{border-color:var(--accent2)}
+.card.frost-border{border-color:var(--frost)}
+
+.q-text{font-size:.95rem;font-weight:500;margin-bottom:14px;line-height:1.5}
+.q-num{color:var(--accent2);font-size:.8rem;margin-bottom:2px;font-weight:600}
+
+.option-row{display:flex;gap:12px;margin-bottom:10px;cursor:pointer;padding:12px 14px;border-radius:8px;background:var(--card2);border:1px solid transparent;transition:.2s}
+.option-row:hover{border-color:var(--accent2)}
+.option-row.selected{border-color:var(--accent);background:rgba(232,160,64,.08)}
+.option-row .letter{width:26px;height:26px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:var(--text2);flex-shrink:0;transition:.2s}
+.option-row.selected .letter{background:var(--accent);color:#000}
+.option-row .label{font-size:.88rem;line-height:1.4;flex:1}
+
+.freq-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.freq-row:last-child{border-bottom:none}
+.freq-row .q-label{flex:1;font-size:.88rem;line-height:1.4}
+.freq-options{display:flex;gap:4px}
+.freq-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:.7rem;cursor:pointer;transition:.15s;text-align:center;display:flex;align-items:center;justify-content:center}
+.freq-btn:hover{background:var(--accent2);color:#000;border-color:var(--accent2)}
+.freq-btn.selected{background:var(--accent);color:#000;border-color:var(--accent)}
+.freq-label{font-size:.65rem;color:var(--text2);text-align:center;width:36px}
+
+.ideal-pair{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.ideal-pair .q-label{font-size:.9rem;font-weight:500;margin-bottom:10px}
+.ideal-sliders{display:flex;gap:20px;flex-wrap:wrap}
+.ideal-slider-group{flex:1;min-width:120px}
+.ideal-slider-group label{display:block;font-size:.75rem;color:var(--text2);margin-bottom:4px}
+.ideal-slider-group input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;transition:.2s}
+.ideal-slider-group input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
+.ideal-slider-group .val{font-size:.8rem;color:var(--accent);margin-top:2px;font-weight:600}
+
+.stress-q{margin-bottom:14px;padding:16px;background:var(--card2);border-radius:10px}
+.stress-q .q-text{font-size:.88rem;margin-bottom:10px}
+.stress-opts{display:flex;gap:8px;flex-wrap:wrap}
+.stress-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:.8rem;cursor:pointer;transition:.15s}
+.stress-btn:hover{border-color:var(--accent2)}
+.stress-btn.selected{background:var(--accent);color:#000;border-color:var(--accent)}
+
+.free-text textarea{width:100%;min-height:90px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);padding:12px;font-family:var(--font);font-size:.85rem;resize:vertical;transition:.2s}
+.free-text textarea:focus{outline:none;border-color:var(--accent)}
+
+/* Energy section specific */
+.energy-q{margin-bottom:16px;padding:18px;background:var(--card2);border-radius:10px;border-left:3px solid var(--frost)}
+.energy-q .q-text{font-size:.9rem;margin-bottom:10px}
+.energy-opts{display:flex;gap:8px;flex-wrap:wrap}
+.energy-btn{padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:.82rem;cursor:pointer;transition:.15s;flex:1;min-width:100px;text-align:center}
+.energy-btn:hover{border-color:var(--frost);background:rgba(96,192,208,.08)}
+.energy-btn.selected{background:var(--frost);color:#000;border-color:var(--frost)}
+.energy-btn.recharge{background:rgba(96,192,208,.05)} /* extraverted vs introverted labels handled in text */
+
+.nav-btns{display:flex;gap:12px;margin-top:24px;justify-content:space-between}
+.btn{padding:12px 28px;border-radius:10px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;transition:.2s;font-family:var(--font)}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.btn-secondary:disabled{opacity:.3;cursor:not-allowed}
+
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:600px){.results-grid{grid-template-columns:1fr}}
+
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.result-card h3{font-size:.85rem;color:var(--accent2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.result-card .big{font-size:1.8rem;font-weight:700;color:var(--accent)}
+.result-card .sub{color:var(--text2);font-size:.85rem;margin-top:4px}
+
+.function-list{list-style:none;margin:0}
+.function-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.function-item:last-child{border-bottom:none}
+.fn-name{width:80px;font-weight:600;font-size:.9rem}
+.fn-bar-wrap{flex:1;height:10px;background:var(--card2);border-radius:6px;overflow:hidden}
+.fn-bar{height:100%;border-radius:6px;transition:width .6s ease}
+.fn-score{width:36px;text-align:right;font-size:.85rem;font-weight:600;color:var(--accent)}
+
+.stack-ordered .fn-name{width:auto;min-width:60px}
+.stack-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.stack-item:last-child{border-bottom:none}
+.stack-pos{font-size:.75rem;color:var(--text2);font-weight:600;width:80px}
+
+#radarCanvas{width:100%;max-width:400px;height:400px;display:block;margin:0 auto}
+.radar-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px}
+
+.type-match{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.type-match h2{font-size:1.6rem;color:var(--accent);margin-bottom:4px}
+.type-match .alt{color:var(--text2);font-size:.9rem;margin-bottom:8px}
+.type-match .score-bar{height:6px;background:var(--card2);border-radius:4px;overflow:hidden;margin:8px 0}
+.type-match .score-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--teal));transition:width .4s}
+
+.gap-note{font-size:.8rem;color:var(--text2);font-style:italic;margin-top:8px}
+.analysis-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.analysis-card h3{color:var(--accent2);font-size:.9rem;margin-bottom:6px}
+.analysis-card p{font-size:.85rem;line-height:1.5;color:var(--text)}
+
+.energy-label{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600}
+.energy-e{background:rgba(232,160,64,.15);color:var(--accent)}
+.energy-i{background:rgba(96,192,208,.15);color:var(--frost)}
+
+.fn-color-Fi{background:#d46070}
+.fn-color-Fe{background:#e88860}
+.fn-color-Ti{background:#40b8a0}
+.fn-color-Te{background:#40a0d0}
+.fn-color-Ni{background:#8870c0}
+.fn-color-Ne{background:#b078d0}
+.fn-color-Si{background:#b0a060}
+.fn-color-Se{background:#60b860}
+
+.text-rose{color:#d46070}.text-gold{color:#e8a040}.text-teal{color:#40b8a0}.text-blue{color:#40a0d0}.text-purple{color:#8870c0}.text-violet{color:#b078d0}.text-olive{color:#b0a060}.text-green{color:#60b860}
+
+footer{text-align:center;color:var(--text2);font-size:.75rem;margin-top:32px;padding:16px 0;border-top:1px solid var(--border)}
+
+@media print{body{background:#fff;color:#111}.section-dot,.progress-bar,.nav-btns{display:none!important}.card,.result-card,.type-match,.analysis-card,.ideal-pair{background:#fff;border-color:#ccc;page-break-inside:avoid}#radarCanvas{max-width:300px;max-height:300px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🧠 Cognitive Function Assessment v4</h1>
+<p class="subtitle">Multi-method: forced-choice (32) + balanced weight matrix + behavioral frequency + energy patterns (8) + stress signals + ideal-self</p>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div class="section-nav" id="sectionNav">
+  <div class="section-dot active" id="dot0">1</div>
+  <div class="section-dot" id="dot1">2</div>
+  <div class="section-dot" id="dot2">3</div>
+  <div class="section-dot" id="dot3">4</div>
+  <div class="section-dot" id="dot4">5</div>
+  <div class="section-dot" id="dot5">6</div>
+  <div class="section-dot" id="dot6">7</div>
+  <div class="section-dot" id="dot7">📋</div>
+</div>
+
+<!-- SECTION 0: Intro -->
+<div class="section active" id="section0">
+  <div class="section-title">About This Assessment</div>
+  <div class="section-desc">
+    Standard personality tests fail because people answer as their <em>idealized self</em>. This one uses six methods to get past that — including a critical Energy & Processing section that separates <strong>social skill</strong> from <strong>social energy</strong>.
+  </div>
+  <div class="card">
+    <p style="margin-bottom:8px;font-weight:500">🧩 <strong>Forced Choice (32)</strong> — All critical pairings covered. Every function appears 6-9 times. Diagnostic weight matrix for precision type discrimination.</p>
+    <p style="margin-bottom:8px;font-weight:500">📊 <strong>Behavioral Frequency</strong> — Reports of actual behavior, not self-concept.</p>
+    <p style="margin-bottom:8px;font-weight:500">⚡ <strong>Stress Patterns</strong> — Functions regress predictably under pressure. Stress reveals function ORDER — critical for accurate typing. All 8 questions required for best results.</p>
+    <p style="margin-bottom:8px;font-weight:500">🔋 <strong>Energy & Processing (8)</strong> — Do social situations energize or drain you? Now directly weighted into function scores, not just post-hoc type penalty.</p>
+    <p style="margin-bottom:8px;font-weight:500">🪞 <strong>Actual vs. Ideal</strong> — The gap itself is diagnostic. Large gaps reveal suppressed functions.</p>
+    <p style="font-weight:500">✍️ <strong>Free Response</strong> — Patterns the numbers miss. Auto-saved.</p>
+  </div>
+  <div id="savedIndicator" style="text-align:center;margin-bottom:8px;font-size:.8rem;color:var(--teal);display:none">✅ Answers auto-saved</div>
+  <p class="subtitle" style="margin-bottom:0">~15 min. Answer honestly, not aspirationally. <strong>Your answers auto-save</strong> — close and come back. Complete ALL 8 stress questions for best accuracy.</p>
+  <div class="nav-btns">
+    <div></div>
+    <button class="btn btn-primary" onclick="goSection(1)">Start →</button>
+  </div>
+</div>
+
+<!-- SECTION 1: Forced Choice -->
+<div class="section" id="section1">
+  <div class="section-title">🧩 Make the Call</div>
+  <div class="section-desc">For each pair, pick the option that fits you <strong>in most situations</strong>. Both are "good" — there's no right answer. Go with your gut.</div>
+  <div id="fcQuestions"></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="goSection(0)">← Back</button>
+    <button class="btn btn-primary" id="fcNext" onclick="goSection(2)">Next Section →</button>
+  </div>
+</div>
+
+<!-- SECTION 2: Frequency -->
+<div class="section" id="section2">
+  <div class="section-title">📊 Daily Patterns</div>
+  <div class="section-desc">How often do these describe your day-to-day behavior? Be honest, not aspirational.</div>
+  <div class="card" id="freqQuestions"></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="goSection(1)">← Back</button>
+    <button class="btn btn-primary" id="freqNext" onclick="goSection(3)">Next Section →</button>
+  </div>
+</div>
+
+<!-- SECTION 3: Stress -->
+<div class="section" id="section3">
+  <div class="section-title">⚡ Under Pressure</div>
+  <div class="section-desc">When you're <strong>highly stressed or burned out</strong>, how much do these ring true? Stress strips away your persona.</div>
+  <div id="stressQuestions"></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="goSection(2)">← Back</button>
+    <button class="btn btn-primary" id="stressNext" onclick="goSection(4)">Next Section →</button>
+  </div>
+</div>
+
+<!-- SECTION 4: Energy & Processing (NEW) -->
+<div class="section" id="section4">
+  <div class="section-title">🔋 Energy & Processing</div>
+  <div class="section-desc">These questions are <strong>critical</strong> for accurate typing. They separate <em>social skill</em> (what you're good at) from <em>social energy</em> (what recharges you). Two people can score identically on Fe questions — one is an Fe-dom and one uses Fe skillfully but needs solitude.</div>
+  <div id="energyQuestions"></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="goSection(3)">← Back</button>
+    <button class="btn btn-primary" id="energyNext" onclick="goSection(5)">Next Section →</button>
+  </div>
+</div>
+
+<!-- SECTION 5: Ideal Self -->
+<div class="section" id="section5">
+  <div class="section-title">🪞 You vs. The Ideal You</div>
+  <div class="section-desc">For each dimension, rate both where you <strong>actually are</strong> and <strong>where you wish you were</strong>. Honest ratings on both reveal more than either alone.</div>
+  <div id="idealQuestions"></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="goSection(4)">← Back</button>
+    <button class="btn btn-primary" id="idealNext" onclick="goSection(6)">Next Section →</button>
+  </div>
+</div>
+
+<!-- SECTION 6: Free Response -->
+<div class="section" id="section6">
+  <div class="section-title">✍️ Your Words</div>
+  <div class="section-desc">Not scored automatically, but patterns in your language reveal what numbers miss.</div>
+  <div id="freeQuestions"></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary" onclick="goSection(5)">← Back</button>
+    <button class="btn btn-primary" onclick="calculateResults()">See Results →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="section" id="section7">
+  <div class="section-title">📋 Your Results</div>
+  <div class="section-desc" id="resultsSubtitle"></div>
+
+  <div class="type-match" id="topType"></div>
+
+  <div class="results-grid" id="altTypes"></div>
+
+  <div class="radar-wrap">
+    <h3 style="color:var(--accent2);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">All 8 Functions</h3>
+    <canvas id="radarCanvas" width="400" height="400"></canvas>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--accent2);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Function Stack (Ranked)</h3>
+    <div id="stackOrdered" class="stack-ordered"></div>
+  </div>
+
+  <div class="card" id="energyResultsCard">
+    <h3 style="color:var(--accent2);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">🔋 Energy Profile</h3>
+    <p id="energyProfile"></p>
+    <div id="energyDetails" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="idealGapCard">
+    <h3 style="color:var(--accent2);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Ideal-Self Gap Analysis</h3>
+    <p class="gap-note" id="gapAnalysis"></p>
+    <div id="gapDetails" style="margin-top:10px"></div>
+  </div>
+
+  <div class="analysis-card" id="consistencyAnalysis">
+    <h3>🔄 Consistency Check</h3>
+    <p id="consistencyText"></p>
+  </div>
+
+  <div class="analysis-card" id="stressAnalysis">
+    <h3>⚡ Stress Signature</h3>
+    <p id="stressText"></p>
+  </div>
+
+  <div class="analysis-card" id="freeAnalysis">
+    <h3>✍️ Free Response Patterns</h3>
+    <p id="freeText"></p>
+  </div>
+
+  <div class="nav-btns" style="flex-wrap:wrap">
+    <button class="btn btn-secondary" onclick="goSection(6)">← Edit Answers</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+    <button class="btn btn-secondary" onclick="copyResults()" style="flex:0">📋 Copy Results</button>
+    <button class="btn btn-secondary" onclick="downloadResults()" style="flex:0">💾 Download JSON</button>
+    <button class="btn btn-secondary" onclick="resetState()" style="margin-left:auto;border-color:var(--rose);color:var(--rose)">↺ Reset All</button>
+  </div>
+
+  <footer>Master117 Cognitive Function Assessment v4 — 32-Question Weighted Multi-Method</footer>
+</div>
+
+<footer class="no-print" style="margin-top:40px">Master117 v4 — 32-Question Weighted Multi-Method</footer>
+</div>
+
+<script>
+// ===== DATA =====
+
+const FNS = ['Fi','Fe','Ti','Te','Ni','Ne','Si','Se'];
+const FN_NAMES = {
+  Fi:'Introverted Feeling', Fe:'Extraverted Feeling',
+  Ti:'Introverted Thinking', Te:'Extraverted Thinking',
+  Ni:'Introverted Intuition', Ne:'Extraverted Intuition',
+  Si:'Introverted Sensing', Se:'Extraverted Sensing'
+};
+const FN_COLORS = {
+  Fi:'#d46070', Fe:'#e88860', Ti:'#40b8a0', Te:'#40a0d0',
+  Ni:'#8870c0', Ne:'#b078d0', Si:'#b0a060', Se:'#60b860'
+};
+const FN_ORDER = ['Fi','Fe','Ti','Te','Ni','Ne','Si','Se'];
+
+// TYPE TEMPLATES: [Dom, Aux, Tert, Inf]
+const TYPE_STACKS = {
+  INFP:['Fi','Ne','Si','Te'], ENFP:['Ne','Fi','Te','Si'],
+  INTP:['Ti','Ne','Si','Fe'], ENTP:['Ne','Ti','Fe','Si'],
+  INFJ:['Ni','Fe','Ti','Se'], ENFJ:['Fe','Ni','Se','Ti'],
+  INTJ:['Ni','Te','Fi','Se'], ENTJ:['Te','Ni','Se','Fi'],
+  ISFP:['Fi','Se','Ni','Te'], ESFP:['Se','Fi','Te','Ni'],
+  ISTP:['Ti','Se','Ni','Fe'], ESTP:['Se','Ti','Fe','Ni'],
+  ISFJ:['Si','Fe','Ti','Ne'], ESFJ:['Fe','Si','Ne','Ti'],
+  ISTJ:['Si','Te','Fi','Ne'], ESTJ:['Te','Si','Ne','Fi']
+};
+// Diagnostic weight matrix (v3.2): How diagnostically important is each question for each type?
+// Columns: ENFJ, ENFP, ENTJ, ENTP, ESFJ, ESFP, ESTJ, ESTP, INFJ, INFP, INTJ, INTP, ISFJ, ISFP, ISTJ, ISTP
+// 5 = dominant-vs-shadow (THE defining question), 4 = stack-order test, 3 = internal tension,
+// 2 = tertiary/inferior signal, 1 = irrelevant (both shadow functions)
+const Q_WEIGHTS = [
+  [5,4,2,2,5,4,2,2,4,5,2,2,4,5,2,2], // Q1: Fi vs Fe
+  [2,2,5,4,2,2,5,4,2,2,4,5,2,2,4,5], // Q2: Ti vs Te
+  [4,5,4,5,2,2,2,2,5,4,5,4,2,2,2,2], // Q3: Ni vs Ne
+  [2,2,2,2,4,5,4,5,2,2,2,2,5,4,5,4], // Q4: Si vs Se
+  [1,5,1,5,3,1,3,1,1,3,1,3,5,1,5,1], // Q5: Ne vs Si
+  [3,1,3,1,1,5,1,5,5,1,5,1,1,3,1,3], // Q6: Ni vs Se
+  [1,3,5,1,1,3,5,1,1,5,3,1,1,5,3,1], // Q7: Fi vs Te
+  [5,1,1,3,5,1,1,3,3,1,1,5,3,1,1,5], // Q8: Ti vs Fe
+  [2,2,4,1,1,4,5,5,2,2,4,1,1,4,4,4], // Q9: Te vs Se
+  [1,5,1,5,3,1,3,1,1,3,1,3,5,1,5,1], // Q10: Si vs Ne
+  [5,1,1,3,5,1,1,3,3,1,1,5,3,1,1,5], // Q11: Fe vs Ti
+  [1,3,5,1,1,3,5,1,1,5,3,1,1,5,3,1], // Q12: Te vs Fi
+  [1,3,5,2,4,2,4,1,1,3,4,2,5,2,4,1], // Q13: Te vs Si
+  [2,2,2,2,4,5,4,5,2,2,2,2,5,4,5,4], // Q14: Se vs Si
+  [2,2,5,4,2,2,5,4,2,2,4,5,2,2,4,5], // Q15: Te vs Ti
+  [5,4,2,2,5,4,2,2,4,5,2,2,4,5,2,2], // Q16: Fe vs Fi
+  [4,1,4,2,5,2,1,3,4,1,5,2,4,2,1,3], // Q17: Fe vs Ni
+  [2,5,2,5,2,5,2,5,2,4,2,4,2,4,2,4], // Q18: Se vs Ne
+  [5,5,1,4,4,1,2,2,4,4,1,4,4,1,2,2], // Q19: Fe vs Ne
+  [4,2,4,2,4,2,4,2,5,2,5,2,5,2,5,2], // Q20: Si vs Ni
+  [4,2,4,1,1,3,5,2,5,2,4,1,1,3,4,2], // Q21: Te vs Ni
+  [1,4,5,5,2,2,4,1,1,4,4,4,2,2,4,1], // Q22: Te vs Ne
+  [4,4,4,1,1,4,2,2,5,5,4,1,1,4,2,2], // Q23: Fi vs Ni
+  [2,2,1,4,4,1,4,4,2,2,1,4,4,1,5,5], // Q24: Ti vs Si
+  [4,1,2,2,5,5,1,4,4,1,2,2,4,4,1,4], // Q25: Fe vs Se
+  [5,5,1,4,4,1,2,2,4,4,1,4,4,1,2,2], // Q26: Ne vs Fe
+  [1,4,2,2,4,4,4,1,1,4,2,2,5,5,4,1], // Q27: Fi vs Si
+  [4,1,4,4,2,2,1,4,4,1,5,5,2,2,1,4], // Q28: Ti vs Ni
+  [5,2,5,2,5,2,5,2,4,2,4,2,4,2,4,2], // Q29: Fe vs Te
+  [2,4,3,1,1,4,2,5,2,5,3,1,1,4,2,4], // Q30: Fi vs Se
+  [2,5,1,4,3,1,2,4,2,4,1,4,3,1,2,5], // Q31: Ne vs Ti
+  [5,2,1,3,4,1,4,2,4,2,1,3,4,1,5,2], // Q32: Si vs Fe
+];
+const TYPE_ORDER = ['ENFJ','ENFP','ENTJ','ENTP','ESFJ','ESFP','ESTJ','ESTP','INFJ','INFP','INTJ','INTP','ISFJ','ISFP','ISTJ','ISTP'];
+// Energy polarity per type: -1 = introverted, +1 = extraverted
+const TYPE_POLARITY = {
+  INFP:-1, ENFP:1, INTP:-1, ENTP:1,
+  INFJ:-1, ENFJ:1, INTJ:-1, ENTJ:1,
+  ISFP:-1, ESFP:1, ISTP:-1, ESTP:1,
+  ISFJ:-1, ESFJ:1, ISTJ:-1, ESTJ:1
+};
+// Expected energy pattern for each type (in E/I terms for our questions)
+// Dominant function orientation gives the best signal
+const TYPE_ENERGY_EXPECTED = {
+  INFP:'I', ENFP:'E', INTP:'I', ENTP:'E',
+  INFJ:'I', ENFJ:'E', INTJ:'I', ENTJ:'E',
+  ISFP:'I', ESFP:'E', ISTP:'I', ESTP:'E',
+  ISFJ:'I', ESFJ:'E', ISTJ:'I', ESTJ:'E'
+};
+
+const TYPE_DESCRIPTIONS = {
+  INFP:'The Mediator — Idealistic, creative, deeply values-driven. Strong inner moral compass. Often feels misunderstood.',
+  ENFP:'The Champion — Enthusiastic, creative, people-oriented. Sees potential in everyone. Needs freedom and novelty.',
+  INTP:'The Logician — Innovative, analytical, abstract. Relentless pursuit of logical consistency. Can get lost in thought.',
+  ENTP:'The Debater — Quick-witted, intellectual, enjoys argument. Explores ideas through challenge. Thrives on novelty.',
+  INFJ:'The Advocate — Visionary, principled, quietly influential. Deep insight into people and systems. Rare, intensely driven. Most likely to be mistyped.',
+  ENFJ:'The Protagonist — Charismatic, empathetic, natural leader. Pulls people toward shared visions. Can overextend helping.',
+  INTJ:'The Architect — Strategic, independent, high standards. Sees systems and long-term patterns. Plans everything.',
+  ENTJ:'The Commander — Bold, decisive, strategic leader. Turns visions into reality. Can be perceived as demanding.',
+  ISFP:'The Adventurer — Gentle, sensitive, artistic. Lives in the moment with deep inner values. Expresses through action.',
+  ESFP:'The Entertainer — Spontaneous, vivacious, people-focused. Brings energy to any room. Lives for experience.',
+  ISTP:'The Virtuoso — Hands-on, pragmatic, analytical. Masters tools and systems. Calm in crisis, private by nature.',
+  ESTP:'The Entrepreneur — Energetic, action-oriented, persuasive. Excels in high-stakes situations. Learns by doing.',
+  ISFJ:'The Defender — Warm, practical, devoted. Protects traditions and cares for others. Detail-oriented and dependable.',
+  ESFJ:'The Consul — Popular, social, community-minded. Creates harmony and maintains traditions. Gives generously.',
+  ISTJ:'The Logistician — Practical, fact-minded, dependable. Trusts facts and experience. The backbone of institutions.',
+  ESTJ:'The Executive — Efficient, organized, leader. Gets things done through systems and structure. Values competence.'
+};
+
+// --- FORCED CHOICE (16 questions, each function still 4x)
+// Improved to better separate Fe-as-skill vs Fe-as-engine and Ni vs Si
+const FC = [
+  // Q1: Fi vs Fe (refined to separate authentic knowing from social attunement)
+  {a:'When making a decision, I prioritize staying true to my personal values — I know what feels right to me', fa:'Fi',
+   text:'Which influences your decisions more?',
+   b:'When making a decision, I prioritize how it will affect the people around me — I naturally consider their feelings first', fb:'Fe'},
+  // Q2: Ti vs Te
+  {a:'Before I can fully use something, I need to understand the underlying principles and logic', fa:'Ti',
+   text:'When learning something new...',
+   b:'I learn best by jumping in and doing it — I figure it out through action and results', fb:'Te'},
+  // Q3: Ni vs Ne (sharper — vision vs exploration)
+  {a:'I have one clear long-term vision I\'m working toward, and most of my decisions funnel into that', fa:'Ni',
+   text:'When you think about your future...',
+   b:'I keep my options open and explore different paths — committing to one thing feels limiting', fb:'Ne'},
+  // Q4: Si vs Se
+  {a:'I find comfort in familiar routines and traditions that have worked before', fa:'Si',
+   text:'In your daily environment...',
+   b:'I get restless with too much routine — I crave variety and new experiences', fb:'Se'},
+  // Q5: Ne vs Si
+  {a:'My best ideas come from making unexpected connections across different domains and possibilities', fa:'Ne',
+   b:'My best ideas come from improving and refining what already exists and works', fb:'Si'},
+  // Q6: Ni vs Se (CRITICAL for INFJ vs ESFP/ESTP)
+  {a:'I prefer planned, purposeful experiences where I know the deeper meaning or destination', fa:'Ni',
+   b:'I prefer spontaneous, hands-on experiences where I can engage all my senses in the moment', fb:'Se'},
+  // Q7: Fi vs Te
+  {a:'I need to feel that what I\'m doing aligns with who I am at my core — authenticity matters more than productivity', fa:'Fi',
+   b:'I focus on what works and produces tangible results — effectiveness matters more than self-expression', fb:'Te'},
+  // Q8: Ti vs Fe (CRITICAL for INFJ: Ti inferior vs Fe auxiliary tension)
+  {a:'I value logical consistency and clarity — I\'ll speak up even if it disrupts the mood', fa:'Ti',
+   b:'I value group harmony and keeping the emotional atmosphere positive — I\'ll hold back my opinion to protect it', fb:'Fe'},
+  // Q9: Te vs Se (for ENTJ/ESTP separation — replaces redundant Se vs Ni mirror)
+  {a:'I trust efficiency and decisive action — the fastest path to a solution is usually the right one', fa:'Te',
+   text:'What do you trust more when making decisions?',
+   b:'I trust real-time experience and what I can sense right now — I respond to what\'s actually happening', fb:'Se'},
+  // Q10: Si vs Ne
+  {a:'I prefer approaches that are proven and reliable — if it worked before, stick with it', fa:'Si',
+   b:'I prefer novel approaches that open up new possibilities — what worked before is just a starting point', fb:'Ne'},
+  // Q11: Fe vs Ti (mirror of Q8 — Fe as skill vs Ti inferior)
+  {a:'I instinctively adjust my behavior to make others feel comfortable and included — it feels natural', fa:'Fe',
+   b:'I stay consistent regardless of the social situation — what you see is what you get, always', fb:'Ti'},
+  // Q12: Te vs Fi (mirror of Q7)
+  {a:'I prioritize efficiency and getting things done, even if it means setting aside personal preferences', fa:'Te',
+   b:'I prioritize staying true to my beliefs and values, even if it slows things down', fb:'Fi'},
+  // Q13: Te vs Si (for ESTJ/ISTJ separation — replaces redundant Ne vs Ni mirror)
+  {a:'I trust external systems and measurable results — if it works consistently and efficiently, it\'s good', fa:'Te',
+   text:'What do you rely on more for guidance?',
+   b:'I trust established routines and proven methods — consistency and tradition matter more than speed', fb:'Si'},
+  // Q14: Se vs Si
+  {a:'I get excited by new sensory experiences — new food, music, places, physical activities', fa:'Se',
+   b:'I find comfort in familiar sensory experiences — returning to favorite foods, places, and activities', fb:'Si'},
+  // Q15: Te vs Ti
+  {a:'I prefer to take action and adjust course as I go — done is better than perfect', fa:'Te',
+   b:'I prefer to understand the system deeply before taking action — understanding comes first', fb:'Ti'},
+  // Q16: Fe vs Fi (CRITICAL: distinguishes Fe expression style from Fi internal clarity)
+  {a:'I naturally attune to what others are feeling and shift my energy to meet them there', fa:'Fe',
+   text:'In social situations...',
+   b:'I naturally attune to what I authentically feel, regardless of the group\'s mood', fb:'Fi'},
+  // NEW Q17: Fe vs Ni (CRITICAL for INFJ/ENFJ vs ESFJ — separates Fe-dom from Ni-dom+Fe-aux)
+  {a:'I naturally absorb and respond to the emotional atmosphere around me — how people feel matters most', fa:'Fe',
+   text:'What drives you more in group settings?',
+   b:'I have a clear inner vision or intuitive sense of where things are heading, and that internal compass guides me more than the group mood', fb:'Ni'},
+  // NEW Q18: Se vs Ne (for Se-dom vs Ne-dom separation — replaces duplicate Ni vs Se)
+  {a:'I focus on what\'s directly in front of me — I trust real, tangible experiences over abstract possibilities', fa:'Se',
+   text:'How do you typically engage with the world?',
+   b:'I focus on the connections between things — I see what could be, not just what is, and explore the possibilities', fb:'Ne'},
+  // NEW Q19: Fe vs Ne (for ENFJ/INFJ vs ENFP separation)
+  {a:'My first instinct is to assess the emotional dynamics — who needs what, how does everyone feel?', fa:'Fe',
+   text:'When entering a new situation...',
+   b:'My first instinct is to notice the possibilities and connections — what could happen, what\'s interesting here?', fb:'Ne'},
+  // NEW Q20: Si vs Ni (for ISFJ/INFJ separation — past precedent vs future vision)
+  {a:'I draw heavily on past experience and what has worked before — history is the best teacher', fa:'Si',
+   text:'When making an important decision...',
+   b:'I trust my sense of the long-term direction and underlying patterns, even if it goes against past precedent', fb:'Ni'},
+  // NEW Q21: Te vs Ni (CRITICAL for ENTJ/INTJ separation — forces Te-doms to choose dominant over auxiliary)
+  {a:'I focus on efficiency, results, and getting things done — I trust action and measurable outcomes', fa:'Te',
+   text:'When leading a project...',
+   b:'I trust my long-term strategic vision — I need to see the full picture before committing to action', fb:'Ni'},
+  // NEW Q22: Te vs Ne (for ENTJ vs ENFP separation)
+  {a:'I prefer to converge on one optimal solution and execute it decisively', fa:'Te',
+   text:'When solving a problem...',
+   b:'I prefer to explore many possible solutions before narrowing down — possibilities first, then action', fb:'Ne'},
+  // NEW Q23: Fi vs Ni (for INFP/INFJ, ISFP/INTJ separation)
+  {a:'I need my choices to align with my authentic inner values — I know what feels right to me', fa:'Fi',
+   text:'What drives your decisions more?',
+   b:'I trust my deep sense of how things will play out — I can feel which path is right long-term', fb:'Ni'},
+  // NEW Q24: Ti vs Si (for INTP/ISFJ, ISTP/ISTJ separation)
+  {a:'I mentally break things down into their logical components — I need to understand the system before I trust it', fa:'Ti',
+   text:'When processing new information...',
+   b:'I compare new information to my past experiences — I trust what\'s worked before and build on it', fb:'Si'},
+  // NEW Q25: Fe vs Se (for ENFJ/ESFP, ESFJ/ESTP separation)
+  {a:'Reading the emotional temperature of a room and adjusting to create harmony comes naturally to me', fa:'Fe',
+   text:'What feels more natural to you?',
+   b:'Engaging with my immediate surroundings fully — responding to sensory input in real time — is my default', fb:'Se'},
+  // NEW Q26: Ne vs Fe (for ENFP/ENFJ, ENTP/ESFJ separation)
+  {a:'I get energized by exploring new ideas, possibilities, and connections between seemingly unrelated things', fa:'Ne',
+   text:'What energizes you more?',
+   b:'I get energized by connecting with people and understanding their emotions — meaningful relationships fuel me', fb:'Fe'},
+  // NEW Q27: Fi vs Si (for INFP/ISFJ, ISFP/ISTJ separation)
+  {a:'My personal sense of what\'s right and wrong guides me — my inner compass doesn\'t need external validation', fa:'Fi',
+   text:'What do you trust more for guidance?',
+   b:'The tried-and-true methods that have proven themselves over time — reliability and tradition matter most', fb:'Si'},
+  // NEW Q28: Ti vs Ni (for INTP/INTJ, ISTP/INFJ separation)
+  {a:'I solve problems by breaking them into logical steps and analyzing each component until I understand the whole', fa:'Ti',
+   text:'How do you tackle complex problems?',
+   b:'I let the problem percolate until I get a sudden insight — the solution emerges as a whole picture, not piece by piece', fb:'Ni'},
+  // NEW Q29: Fe vs Te (for ENFJ/ENTJ, ESFJ/ESTJ separation)
+  {a:'When working with others, I prioritize group cohesion and making sure everyone feels heard and valued', fa:'Fe',
+   text:'When working in a team...',
+   b:'When working with others, I prioritize efficiency and measurable progress — I\'ll push for decisions even when it creates friction', fb:'Te'},
+  // NEW Q30: Fi vs Se (for INFP/ESFP, ISFP/ENFP separation)
+  {a:'My core values and sense of identity keep me stable — knowing who I am grounds me through anything', fa:'Fi',
+   text:'What keeps you grounded?',
+   b:'Being fully present in the moment and engaging all my senses keeps me grounded — the now is what\'s real', fb:'Se'},
+  // NEW Q31: Ne vs Ti (for ENFP/INTP, ENTP/ISTP separation)
+  {a:'I love generating lots of ideas and seeing how they connect — the exploration phase is what I live for', fa:'Ne',
+   text:'What\'s more your style?',
+   b:'I love analyzing ideas deeply for logical soundness — I need to know what holds up and what doesn\'t', fb:'Ti'},
+  // NEW Q32: Si vs Fe (for ISFJ/ESFJ, ISTJ/ESTJ separation)
+  {a:'I naturally prioritize maintaining stability and honoring commitments — I keep things running smoothly', fa:'Si',
+   text:'What do you naturally prioritize?',
+   b:'I naturally prioritize supporting others\' emotional wellbeing — making sure people feel okay comes first', fb:'Fe'}
+];
+
+// --- FREQUENCY (8 questions, one per function) ---
+const FREQ = [
+  {fn:'Fi', text:'Check whether a decision aligns with your personal values before proceeding?'},
+  {fn:'Fe', text:'Adjust your behavior or words to make others feel comfortable?'},
+  {fn:'Ti', text:'Analyze whether something is logically consistent, even in casual conversation?'},
+  {fn:'Te', text:'Take decisive action to hit concrete, measurable results?'},
+  {fn:'Ni', text:'Have a vivid inner sense of how things will turn out in the future?'},
+  {fn:'Ne', text:'Brainstorm multiple possibilities or alternatives without committing to one?'},
+  {fn:'Si', text:'Follow established routines and traditions in your daily life?'},
+  {fn:'Se', text:'Seek out new sensory or physical experiences (food, travel, nature, movement)?'}
+];
+const FREQ_LABELS = ['Never','Rarely','Sometimes','Often','Very Often'];
+
+// --- STRESS (8 questions) ---
+const STRESS = [
+  {fn:'Si', text:'When stressed, do you obsess over tiny details you would normally ignore — rechecking, replaying, re-reading everything?'},
+  {fn:'Se', text:'When stressed, do you become impulsive, reckless, or seek intense sensations to distract yourself?'},
+  {fn:'Ti', text:'When stressed, do you become coldly critical and analytical about other people\'s competence?'},
+  {fn:'Te', text:'When stressed, do you become rigidly bossy, demanding that people follow your plan immediately?'},
+  {fn:'Fi', text:'When stressed, do you withdraw emotionally and become stubbornly fixed on what you want regardless of others?'},
+  {fn:'Fe', text:'When stressed, do you become uncharacteristically needy for reassurance and social approval?'},
+  {fn:'Ni', text:'When stressed, do you become catastrophically pessimistic, seeing only worst-case outcomes?'},
+  {fn:'Ne', text:'When stressed, do you become scattered and unable to settle on any direction or decision?'}
+];
+const STRESS_OPTS = ['Never','Rarely','Sometimes','Often','Always'];
+
+// --- ENERGY (6 critical questions to separate Fe-dom from Ni-dom+Fe-aux)
+const ENERGY_QUESTIONS = [
+  {id:'social_recharge',
+   q:'After a long social event — party, conference, family gathering — which feels more true?',
+   e:'I feel energized and want more social time — talking to people gives me energy',
+   i:'I feel drained and need significant alone time to recover — social interaction costs me energy'},
+  {id:'processing',
+   q:'When I need to process something important...',
+   e:'I talk it through with someone I trust — speaking out loud helps me think',
+   i:'I withdraw and process it alone in my head — I need quiet to know what I think'},
+  {id:'feeling_awareness',
+   q:'How do you most often discover how you feel about something?',
+   e:'I generally know how I feel pretty quickly — my feelings surface clearly and directly',
+   i:'I often don\'t know how I feel until I\'ve had time alone to reflect — my feelings surface slowly'},
+  {id:'social_skill_vs_need',
+   q:'Your social skills feel more like...',
+   e:'A natural, effortless part of who I am — connecting with people is my default state',
+   i:'A well-developed skill — I\'m genuinely good at it, but it takes energy and I need breaks'},
+  {id:'group_role',
+   q:'When I\'m in a group of people I know...',
+   e:'I naturally move through the group, engaging with different people and steering the energy',
+   i:'I observe the dynamics carefully and speak when I have something meaningful to add'},
+  {id:'decision_trust',
+   q:'When making a decision under uncertainty, I ultimately trust...',
+   e:'External input, data, and feedback from people I respect — I want to validate with others',
+   i:'My deep intuitive sense of what\'s right — I need to feel it internally, even without external confirmation'},
+  // NEW Q7: Natural default state
+  {id:'free_time',
+   q:'On a completely free day with no obligations, you naturally gravitate toward...',
+   e:'Seeking out people, activities, or external stimulation — I feel best when engaged with the world',
+   i:'Seeking quiet time to recharge, think, or focus on personal projects — I feel best in my own space'},
+  // Q9: Conversation energy
+  {id:'conversation_energy',
+   q:'In conversations with people you know well, you most often find yourself...',
+   e:'Talking through ideas and feeling energized by the back-and-forth exchange',
+   i:'Listening carefully and responding thoughtfully — you enjoy it but it requires focus and energy'}
+];
+const ENERGY_OPTS = ['A (left)','B (right)']; // A = extraverted answer, B = introverted answer
+
+// --- IDEAL (8 functions) ---
+const IDEAL = FN_ORDER.map(fn => ({fn, label: `${fn} — ${FN_NAMES[fn]}`}));
+
+// --- FREE RESPONSE ---
+const FREE = [
+  {prompt:'Describe a time you solved a difficult problem. Walk through your process step by step — what did you do first, second, third?'},
+  {prompt:'What frustrates you most about other people? Not trivial annoyances — the thing that truly drains you in relationships or work.'},
+  {prompt:'Describe a moment when you felt the most "like yourself" — energized, authentic, in your element. What were you doing? Who, if anyone, was with you?'}
+];
+
+// ===== STATE =====
+const S = {
+  fc: new Array(32).fill(null),         // 'A' or 'B' (v4: 32 questions)
+  freq: new Array(8).fill(0),           // 0-4
+  stress: new Array(8).fill(0),         // 0-4
+  energy: new Array(8).fill(null),      // 'E' or 'I' (v3: 8 questions)
+  ideal: new Array(8).fill({a:3,i:3})   // {a:1-5, i:1-5}
+};
+for(let i=0; i<8; i++) S.ideal[i] = {a:3, i:3};
+
+let currentSection = 0;
+
+// ===== PERSISTENCE (v3) =====
+const STORAGE_KEY = 'cog_assess_v3';
+
+function saveState() {
+  try {
+    const data = {
+      fc: S.fc,
+      freq: S.freq,
+      stress: S.stress,
+      energy: S.energy,
+      ideal: S.ideal,
+      free: [
+        document.getElementById('free0')?.value || '',
+        document.getElementById('free1')?.value || '',
+        document.getElementById('free2')?.value || ''
+      ]
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // Brief saved indicator
+    const ind = document.getElementById('savedIndicator');
+    if(ind) {
+      ind.style.display = 'block';
+      setTimeout(() => { ind.style.display = 'none'; }, 2000);
+    }
+  } catch(e) { /* localStorage may be unavailable */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(data.fc && (data.fc.length === 20 || data.fc.length === 22 || data.fc.length === 32)) S.fc = data.fc;
+    if(data.freq && data.freq.length === 8) S.freq = data.freq;
+    if(data.stress && data.stress.length === 8) S.stress = data.stress;
+    if(data.energy && data.energy.length === 8) S.energy = data.energy;
+    if(data.ideal && data.ideal.length === 8) S.ideal = data.ideal;
+    // Free text loaded after DOM renders
+    window._savedFree = data.free || null;
+    return true;
+  } catch(e) { return false; }
+}
+
+function resetState() {
+  localStorage.removeItem(STORAGE_KEY);
+  S.fc = new Array(32).fill(null);
+  S.freq = new Array(8).fill(0);
+  S.stress = new Array(8).fill(0);
+  S.energy = new Array(8).fill(null);
+  S.ideal = new Array(8).fill({a:3,i:3});
+  window._savedFree = null;
+  render();
+  saveState();
+}
+
+// ===== RENDER =====
+
+function render() {
+  renderFC();
+  renderFreq();
+  renderStress();
+  renderEnergy();
+  renderIdeal();
+  renderFree();
+  updateNav();
+}
+
+function renderFC() {
+  const el = document.getElementById('fcQuestions');
+  el.innerHTML = FC.map((q, i) => `
+    <div class="card ${S.fc[i] ? 'highlight' : ''}">
+      <div class="q-num">Q${i+1}</div>
+      <div class="q-text">${q.text || 'Which describes you better in most situations?'}</div>
+      <div class="option-row ${S.fc[i]==='A'?'selected':''}" onclick="selectFC(${i},'A')">
+        <div class="letter">A</div>
+        <div class="label">${q.a}</div>
+      </div>
+      <div class="option-row ${S.fc[i]==='B'?'selected':''}" onclick="selectFC(${i},'B')">
+        <div class="letter">B</div>
+        <div class="label">${q.b}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectFC(i, val) {
+  if(S.fc[i] === val) { S.fc[i] = null; }
+  else { S.fc[i] = val; }
+  renderFC();
+  updateNav();
+  saveState();
+}
+
+function renderFreq() {
+  const el = document.getElementById('freqQuestions');
+  el.innerHTML = FREQ.map((q, i) => `
+    <div class="freq-row">
+      <div class="q-label">How often do you… <strong>${q.text}</strong></div>
+      <div class="freq-options">
+        ${FREQ_LABELS.map((l, j) => `<div style="text-align:center">
+          <button class="freq-btn ${S.freq[i]===j?'selected':''}" onclick="selectFreq(${i},${j})">${['N','R','S','O','VO'][j]}</button>
+          <div class="freq-label">${l}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectFreq(i, val) {
+  S.freq[i] = (S.freq[i] === val) ? 0 : val;
+  renderFreq();
+  updateNav();
+  saveState();
+}
+
+function renderStress() {
+  const el = document.getElementById('stressQuestions');
+  el.innerHTML = STRESS.map((q, i) => `
+    <div class="stress-q">
+      <div class="q-text">${q.text}</div>
+      <div class="stress-opts">
+        ${STRESS_OPTS.map((l, j) => `<button class="stress-btn ${S.stress[i]===j?'selected':''}" onclick="selectStress(${i},${j})">${l}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectStress(i, val) {
+  S.stress[i] = (S.stress[i] === val) ? 0 : val;
+  renderStress();
+  updateNav();
+  saveState();
+}
+
+function renderEnergy() {
+  const el = document.getElementById('energyQuestions');
+  el.innerHTML = ENERGY_QUESTIONS.map((q, i) => `
+    <div class="energy-q">
+      <div class="q-text">${q.q}</div>
+      <div class="energy-opts">
+        <div class="option-row ${S.energy[i]==='E'?'selected':''}" style="flex:1;margin-bottom:0" onclick="selectEnergy(${i},'E')">
+          <div class="letter" style="background:${S.energy[i]==='E'?'var(--accent)':'var(--border)'};color:${S.energy[i]==='E'?'#000':'var(--text2)'}">A</div>
+          <div class="label">${q.e}</div>
+        </div>
+        <div class="option-row ${S.energy[i]==='I'?'selected':''}" style="flex:1;margin-bottom:0" onclick="selectEnergy(${i},'I')">
+          <div class="letter" style="background:${S.energy[i]==='I'?'var(--frost)':'var(--border)'};color:${S.energy[i]==='I'?'#000':'var(--text2)'}">B</div>
+          <div class="label">${q.i}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectEnergy(i, val) {
+  S.energy[i] = (S.energy[i] === val) ? null : val;
+  renderEnergy();
+  updateNav();
+  saveState();
+}
+
+function renderIdeal() {
+  const el = document.getElementById('idealQuestions');
+  el.innerHTML = IDEAL.map((q, i) => `
+    <div class="ideal-pair">
+      <div class="q-label">${q.label}</div>
+      <div class="ideal-sliders">
+        <div class="ideal-slider-group">
+          <label>You <em>actually are</em></label>
+          <input type="range" min="1" max="5" value="${S.ideal[i].a}" oninput="updateIdeal(${i},'a',this.value)">
+          <div class="val" id="idealA${i}">${S.ideal[i].a}</div>
+        </div>
+        <div class="ideal-slider-group">
+          <label>You <em>wish you were</em></label>
+          <input type="range" min="1" max="5" value="${S.ideal[i].i}" oninput="updateIdeal(${i},'i',this.value)">
+          <div class="val" id="idealI${i}">${S.ideal[i].i}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateIdeal(i, key, val) {
+  S.ideal[i][key] = parseInt(val);
+  document.getElementById(`ideal${key.toUpperCase()}${i}`).textContent = val;
+  updateNav();
+  saveState();
+}
+
+function renderFree() {
+  const el = document.getElementById('freeQuestions');
+  el.innerHTML = FREE.map((q, i) => `
+    <div class="card free-text">
+      <div class="q-text">${q.prompt}</div>
+      <textarea id="free${i}" placeholder="Write your response here..." style="margin-top:6px" oninput="saveState()"></textarea>
+    </div>
+  `).join('');
+  // Restore saved free text if available
+  if(window._savedFree) {
+    window._savedFree.forEach((val, i) => {
+      const ta = document.getElementById('free'+i);
+      if(ta && val) ta.value = val;
+    });
+  }
+}
+
+// ===== NAVIGATION =====
+
+function goSection(n) {
+  currentSection = n;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section'+n).classList.add('active');
+  document.querySelectorAll('.section-dot').forEach(d => d.classList.remove('active'));
+  document.getElementById('dot'+n).classList.add('active');
+  updateNav();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateNav() {
+  const fcDone = S.fc.filter(x => x !== null).length;
+  const freqDone = S.freq.filter(x => x > 0).length;
+  const stressDone = S.stress.filter(x => x > 0).length;
+  const energyDone = S.energy.filter(x => x !== null).length;
+  const idealDone = S.ideal.filter(d => d.a > 0).length;
+  const total = 32 + 8 + 8 + 8 + 8;
+  const done = fcDone + freqDone + stressDone + energyDone + idealDone;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Dots
+  for(let i=0; i<8; i++) {
+    const d = document.getElementById('dot'+i);
+    d.classList.remove('active','done');
+    if(i === currentSection) d.classList.add('active');
+  }
+  for(let i=0; i<currentSection; i++) {
+    document.getElementById('dot'+i).classList.add('done');
+  }
+
+  document.getElementById('fcNext').disabled = (fcDone < 32);
+  document.getElementById('freqNext').disabled = (freqDone < 4);
+  document.getElementById('stressNext').disabled = (stressDone < 4);
+  document.getElementById('energyNext').disabled = (energyDone < 6);
+  document.getElementById('idealNext').disabled = (idealDone < 4);
+}
+
+// ===== CALCULATION =====
+
+function calculateResults() {
+  // 1. Forced Choice scores — count per-function appearances for proper normalization
+  const fcScore = {};
+  const fcCount = {};
+  FN_ORDER.forEach(f => { fcScore[f] = 0; fcCount[f] = 0; });
+  FC.forEach((q, i) => {
+    if(S.fc[i] === 'A') { fcScore[q.fa] = (fcScore[q.fa] || 0) + 1; fcCount[q.fa] = (fcCount[q.fa] || 0) + 1; }
+    else if(S.fc[i] === 'B') { fcScore[q.fb] = (fcScore[q.fb] || 0) + 1; fcCount[q.fb] = (fcCount[q.fb] || 0) + 1; }
+  });
+
+  // Frequency
+  const freqScore = {};
+  FN_ORDER.forEach(f => freqScore[f] = 0);
+  FREQ.forEach((q, i) => {
+    freqScore[q.fn] = S.freq[i] / 4;
+  });
+
+  // Stress (inverted: lower stress = healthier)
+  const stressScore = {};
+  FN_ORDER.forEach(f => stressScore[f] = 0);
+  STRESS.forEach((q, i) => {
+    stressScore[q.fn] = S.stress[i] / 4;
+  });
+
+  // Ideal actual
+  const actualScore = {};
+  FN_ORDER.forEach(f => actualScore[f] = 0);
+  IDEAL.forEach((q, i) => {
+    actualScore[q.fn] = S.ideal[i].a / 5;
+  });
+
+  // Energy profile: ratio of introverted answers
+  const energyValid = S.energy.filter(x => x !== null).length;
+  const energyE = S.energy.filter(x => x === 'E').length;
+  const energyI = S.energy.filter(x => x === 'I').length;
+  const energyRatio = energyValid > 0 ? energyI / energyValid : 0.5; // 0 = fully E, 1 = fully I
+  const energyClass = energyRatio <= 0.3 ? 'E' : (energyRatio >= 0.7 ? 'I' : (energyI > energyE ? 'I-leaning' : 'E-leaning'));
+
+  // Energy-adjusted function scores (v3: energy directly influences function scores)
+  const composite = {};
+  FN_ORDER.forEach(f => {
+    const fnAppearances = fcCount[f] || 4;
+    const fcNorm = fnAppearances > 0 ? fcScore[f] / fnAppearances : 0; // normalized per-function
+    const freqNorm = freqScore[f];
+    const stressNorm = 1 - stressScore[f];
+    const baseScore = fcNorm * 0.35 + freqNorm * 0.10 + stressNorm * 0.15 + actualScore[f] * 0.05;
+    
+    // Energy boost/penalty: extraverted functions get energyRatio, introverted get (1-energyRatio)
+    const isExtravertedFn = ['Fe','Te','Ne','Se'].includes(f);
+    const energySignal = energyValid >= 6 ? energyRatio : 0.5; // only if enough answers
+    let energyFactor;
+    if(isExtravertedFn) {
+      // Extraverted functions score higher for E-types, lower for I-types
+      energyFactor = 1 - energySignal; // 1.0 if fully E, 0.0 if fully I
+    } else {
+      // Introverted functions score higher for I-types, lower for E-types
+      energyFactor = energySignal; // 1.0 if fully I, 0.0 if fully E
+    }
+    // energy weight: 0.20 (same as frequency)
+    composite[f] = baseScore + energyFactor * 0.35;
+  });
+
+  const ranked = FN_ORDER.slice().sort((a, b) => composite[b] - composite[a]);
+  const scores = composite;
+
+  // ===== FREE RESPONSE NLP — contextual analysis before type matching =====
+  const freeTexts = [0,1,2].map(function(i) { var ta = document.getElementById('free'+i); return ta ? ta.value.trim() : ''; });
+  const hasFree = freeTexts.filter(function(t) { return t.length > 0; });
+  const frBoost = {};
+  TYPE_ORDER.forEach(function(t) { frBoost[t] = 0; });
+  if(hasFree.length > 0) {
+    const fnSignals = {
+      Fi: ['feel','value','authentic','true to myself','belief','inner','integrity','principles','identity'],
+      Fe: ['harmony','others feel','everyone','connect','support','care about people','group','together','community'],
+      Ti: ['logical','understand','analyze','break down','system','coherent','rational','why it works','component'],
+      Te: ['efficient','effective','results','action','execute','achieve','data','measure','productive','output'],
+      Ni: ['vision','future','meaning','insight','pattern','direction','purpose','deeper understanding','calling'],
+      Ne: ['possibilities','explore','options','brainstorm','many ideas','curious','connections','brainstorm'],
+      Si: ['experience','past','tradition','routine','familiar','proven','consistent','detail','reliable'],
+      Se: ['present','now','sensory','physical','tangible','hands-on','immediate','real-time','sensation']
+    };
+    const negationWords = ['not',"don't","doesn't","didn't","isn't","aren't","wasn't","weren't",'never',"can't",'without','lack','avoid','against'];
+    const fnScores = {};
+    Object.keys(fnSignals).forEach(function(fn) { fnScores[fn] = 0; });
+    freeTexts.forEach(function(text, qi) {
+      if(!text) return;
+      var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+      sentences.forEach(function(sentence) {
+        var s = sentence.toLowerCase().trim();
+        if(s.length < 5) return;
+        var isNegated = negationWords.some(function(w) { return s.indexOf(' ' + w + ' ') >= 0 || s.indexOf(w + ' ') === 0 || s.indexOf(' ' + w) === s.length - w.length - 1 || s === w; });
+        var hasComparison = /(more|better|rather|prefer).*(than|over)|instead of|not as important as/i.test(s);
+        Object.keys(fnSignals).forEach(function(fn) {
+          var words = fnSignals[fn];
+          var matched = words.some(function(w) { return s.indexOf(w) >= 0; });
+          if(!matched) return;
+          if(hasComparison) {
+            var before = s.substring(0, Math.max.apply(null, words.filter(function(w){return s.indexOf(w)>=0}).map(function(w){return s.indexOf(w)})));
+            var favored = /(more|better|prefer|rather)/i.test(before);
+            fnScores[fn] += favored ? 2 : -1;
+          } else if(isNegated) {
+            fnScores[fn] -= 1;
+          } else {
+            fnScores[fn] += 1;
+          }
+        });
+      });
+    });
+    // Compute frBoost per type
+    var fnPairs = [{a:'Fi',b:'Fe'},{a:'Ti',b:'Te'},{a:'Ni',b:'Ne'},{a:'Si',b:'Se'}];
+    TYPE_ORDER.forEach(function(type, ti) {
+      var stack = TYPE_STACKS[type];
+      var alignment = 0;
+      fnPairs.forEach(function(p) {
+        var diff = (fnScores[p.a] || 0) - (fnScores[p.b] || 0);
+        if(Math.abs(diff) < 2) return;
+        var preferred = diff > 0 ? p.a : p.b;
+        if(stack[0] === preferred) alignment += 2;
+        else if(stack[1] === preferred) alignment += 1;
+        else if(stack[2] === preferred) alignment -= 1;
+        else if(stack[3] === preferred) alignment -= 2;
+      });
+      frBoost[type] = alignment;
+    });
+    // Generate display text for free response section
+    var totalWords = 0;
+    var frDisplay = [];
+    freeTexts.forEach(function(t) { if(t) totalWords += t.split(/\s+/).length; });
+    frDisplay.push('You wrote ' + totalWords + ' words across ' + hasFree.length + ' prompt' + (hasFree.length>1?'s':'') + '.');
+    fnPairs.forEach(function(p) {
+      var diff = (fnScores[p.a] || 0) - (fnScores[p.b] || 0);
+      if (Math.abs(diff) >= 2) {
+        var preferred = diff > 0 ? p.a : p.b;
+        frDisplay.push('Language suggests ' + FN_NAMES[preferred] + ' (' + preferred + ') over ' + (p.a === preferred ? p.b : p.a) + ' — ' + Math.abs(diff) + ' point' + (Math.abs(diff)>1?'s':'') + ' contextual signal.');
+      }
+    });
+    // Frustration direction
+    var frustration = freeTexts[1] || '';
+    var frustOuter = (frustration.match(/\b(they|others|people|system|manager|team|company|leaders|coworker|group|everyone)\b/g) || []).length;
+    var frustInner = (frustration.match(/\b(I|me|my|myself|can't|won't|should|expect|standards|perfection|disappointed)\b/g) || []).length;
+    if(frustOuter > frustInner + 1) frDisplay.push('Frustration directed outwardly at people/systems — extraverted judging pattern (Fe/Te).');
+    else if(frustInner > frustOuter + 1) frDisplay.push('Frustration directed inwardly at own standards — introverted judging pattern (Fi/Ti).');
+    // Best-self context
+    var bestSelf = freeTexts[2] || '';
+    var bestPeople = (bestSelf.match(/\b(we|they|friend|group|together|people|others|team|family|crowd|audience|party|gathering)\b/g) || []).length;
+    var bestSolo = (bestSelf.match(/\b(alone|solo|myself|by myself|quiet|private|reading|writing|thinking|nature|walk|garden)\b/g) || []).length;
+    if(bestSolo > bestPeople + 1 && bestSolo >= 2) frDisplay.push('"Most yourself" moments tend to be solitary — introverted energy preference.');
+    else if(bestPeople > bestSolo + 1 && bestPeople >= 2) frDisplay.push('"Most yourself" moments tend to involve others — extraverted energy preference.');
+    window._frHTML = frDisplay.join('<br>');
+  }
+
+  // 2. Type matching — v3.2 with diagnostic weight matrix
+  // Two independent paths: weighted forced-choice (60%) + composite function scores (40%)
+  const typeMatches = [];
+  TYPE_ORDER.forEach((type, ti) => {
+    const stack = TYPE_STACKS[type];
+    
+    // Path A: Weighted forced-choice match (60%)
+    let weightedScore = 0;
+    let maxWeighted = 0;
+    FC.forEach((q, qi) => {
+      if(S.fc[qi] === null) return;
+      const weight = Q_WEIGHTS[qi][ti];
+      const pickedFn = S.fc[qi] === 'A' ? q.fa : q.fb;
+      const fnRank = stack.indexOf(pickedFn);
+      // Bonus: dom=1.0, aux=0.75, tert=0.5, inf=0.25, shadow=0
+      const bonus = fnRank >= 0 ? (4 - fnRank) / 4 : 0;
+      weightedScore += weight * bonus;
+      maxWeighted += weight;
+    });
+    const fcMatch = maxWeighted > 0 ? weightedScore / maxWeighted : 0;
+    
+    // Path B: Composite function score match (40%)
+    let compSim = 0;
+    stack.forEach((fn, idx) => {
+      const posWeight = [0.40, 0.30, 0.20, 0.10][idx];
+      compSim += scores[fn] * posWeight;
+    });
+    
+    // Combine
+    let sim = fcMatch * 0.60 + compSim * 0.40;
+
+    // Free Response NLP boost (up to ±5% based on language alignment)
+    if(frBoost[type] !== 0) {
+      sim = Math.max(0, Math.min(1, sim + frBoost[type] * 0.01));
+    }
+    
+    // Energy BIAS: penalize matches where energy profile contradicts type polarity
+    const expectedPolarity = TYPE_ENERGY_EXPECTED[type];
+    if(expectedPolarity === 'E' && energyRatio > 0.5) {
+      const penalty = (energyRatio - 0.5) * 2 * 0.15;
+      sim = Math.max(0, sim - penalty);
+    } else if(expectedPolarity === 'I' && energyRatio < 0.5) {
+      const penalty = (0.5 - energyRatio) * 2 * 0.15;
+      sim = Math.max(0, sim - penalty);
+    }
+    typeMatches.push({type, score: sim, stack});
+  });
+  typeMatches.sort((a, b) => b.score - a.score);
+  const topType = typeMatches[0];
+
+  // 3. Gap analysis
+  const gaps = FN_ORDER.map(f => ({
+    fn: f,
+    gap: (S.ideal[FN_ORDER.indexOf(f)].i - S.ideal[FN_ORDER.indexOf(f)].a)
+  })).sort((a, b) => b.gap - a.gap);
+  const bigGaps = gaps.filter(g => g.gap >= 2);
+  const idealFns = gaps.filter(g => g.gap >= 2).map(g => g.fn);
+
+  // 4. Stress profile
+  const stressSorted = FN_ORDER.slice().sort((a, b) => stressScore[b] - stressScore[a]);
+
+  // ===== RENDER RESULTS =====
+  document.getElementById('resultsSubtitle').textContent =
+    `Based on ${S.fc.filter(x=>x).length}/32 forced choices, ${S.freq.filter(x=>x>0).length}/8 frequency ratings, ${S.stress.filter(x=>x>0).length}/8 stress patterns, ${S.energy.filter(x=>x!==null).length}/8 energy profile questions, and ${S.ideal.filter(d=>d.a>0).length}/8 ideal-self ratings.`;
+
+  // Top type
+  const desc = TYPE_DESCRIPTIONS[topType.type] || '';
+  document.getElementById('topType').innerHTML = `
+    <h2>${topType.type}</h2>
+    <p style="font-size:.9rem;color:var(--text);margin:6px 0 12px">${desc}</p>
+    <div style="margin-bottom:6px">
+      <strong>Function Stack:</strong> ${topType.stack.map((fn,i)=>`<span style="color:${FN_COLORS[fn]};font-weight:600">${fn}</span>${i<3?' → ':''}`).join('')}
+    </div>
+    <div class="score-bar"><div class="score-fill" style="width:${Math.round(topType.score*100)}%"></div></div>
+    <p style="font-size:.75rem;color:var(--text2)">Match confidence: ${(topType.score*100).toFixed(1)}%</p>
+  `;
+
+  // Alt types
+  document.getElementById('altTypes').innerHTML = typeMatches.slice(1,5).map(t => `
+    <div class="result-card">
+      <h3>${t.type}</h3>
+      <div class="big" style="font-size:1.2rem">${(t.score*100).toFixed(0)}%</div>
+      <div class="score-bar" style="margin:4px 0"><div class="score-fill" style="width:${Math.round(t.score*100)}%"></div></div>
+      <div class="sub">${t.stack.join(' → ')}</div>
+    </div>
+  `).join('');
+
+  // Stack ordered
+  document.getElementById('stackOrdered').innerHTML = ranked.map((fn, i) => {
+    const pos = ['Dominant','Auxiliary','Tertiary','Inferior','Shadow','Shadow','Shadow','Shadow'][i];
+    return `<div class="stack-item">
+      <span class="stack-pos" style="color:${i<4?'var(--accent)':'var(--text2)'}">${pos}</span>
+      <span class="fn-name" style="color:${FN_COLORS[fn]};font-weight:600">${fn}</span>
+      <span style="font-size:.8rem;color:var(--text2)">${FN_NAMES[fn]}</span>
+      <div class="fn-bar-wrap" style="flex:1"><div class="fn-bar fn-color-${fn}" style="width:${Math.round(scores[fn]*100)}%"></div></div>
+      <span class="fn-score">${(scores[fn]*100).toFixed(0)}</span>
+    </div>`;
+  }).join('');
+
+  // Energy Profile
+  const energyEl = document.getElementById('energyProfile');
+  const energyDetailsEl = document.getElementById('energyDetails');
+
+  const energyResultText = [];
+  if(energyClass === 'I') {
+    energyResultText.push('Your energy profile is <strong>strongly introverted</strong>. Social interaction costs you energy, no matter how good you are at it. You need solitude to process.');
+  } else if(energyClass === 'I-leaning') {
+    energyResultText.push('Your energy profile is <strong>moderately introverted</strong>. You lean toward needing alone time, even if you can handle social situations well.');
+  } else if(energyClass === 'E') {
+    energyResultText.push('Your energy profile is <strong>strongly extraverted</strong>. Social interaction energizes you — you genuinely recharge from people.');
+  } else {
+    energyResultText.push('Your energy profile is <strong>moderately extraverted</strong>. You lean toward drawing energy from interaction.');
+  }
+
+  // Cross-reference with top type
+  const topEnergyExpected = TYPE_ENERGY_EXPECTED[topType.type];
+  if(topEnergyExpected === 'E' && energyClass === 'I') {
+    energyResultText.push('<span style="color:var(--rose)">⚠️ <strong>Energy mismatch detected:</strong> Your top type expects extraverted energy, but your answers show introverted energy patterns. This strongly suggests your Fe is <em>auxiliary</em> (skill, not engine) — meaning INFJ, ISFJ, or a non-Fe-dom type may be more accurate than your top match.</span>');
+  } else if(topEnergyExpected === 'I' && energyClass === 'E') {
+    energyResultText.push('<span style="color:var(--frost)">📌 Note: Your top type expects introverted energy, but your answers show extraverted patterns. Consider whether an extraverted type variant fits better.</span>');
+  } else {
+    energyResultText.push(`✅ Your energy profile aligns with ${topType.type}'s expected energy polarity.`);
+  }
+
+  // Show which specific energy questions went which way
+  energyEl.innerHTML = energyResultText.join('<br><br>');
+  energyDetailsEl.innerHTML = ENERGY_QUESTIONS.map((q, i) => {
+    const ans = S.energy[i];
+    if(!ans) return '';
+    const ansText = ans === 'E' ? q.e : q.i;
+    const cls = ans === 'E' ? 'energy-e' : 'energy-i';
+    return `<div class="freq-row" style="padding:6px 0;font-size:.82rem">
+      <span style="flex:1">${q.q.substring(0,60)}…</span>
+      <span class="energy-label ${cls}">${ans === 'E' ? 'Extraverted' : 'Introverted'}</span>
+    </div>`;
+  }).join('');
+
+  // Gap analysis
+  if(bigGaps.length > 0) {
+    const gapFnNames = bigGaps.map(g => `<span style="color:${FN_COLORS[g.fn]};font-weight:600">${g.fn}</span>`).join(', ');
+    document.getElementById('gapAnalysis').innerHTML =
+      `You show a notable gap between your actual self and ideal self in <strong>${bigGaps.length} function${bigGaps.length>1?'s':''}</strong>: ${gapFnNames}. ` +
+      `This typically means you value or admire these functions but don't fully embody them yet — they may feel aspirational or suppressed.`;
+    document.getElementById('gapDetails').innerHTML = gaps.filter(g => g.gap >= 1).map(g => `
+      <div class="freq-row" style="padding:6px 0">
+        <span class="fn-name" style="width:30px;color:${FN_COLORS[g.fn]};font-weight:600">${g.fn}</span>
+        <span style="flex:1;font-size:.85rem">Actual: ${S.ideal[FN_ORDER.indexOf(g.fn)].a} → Ideal: ${S.ideal[FN_ORDER.indexOf(g.fn)].i} (gap: +${g.gap})</span>
+        <div class="fn-bar-wrap" style="max-width:120px"><div class="fn-bar" style="width:${(g.gap/4)*100}%;background:var(--rose)"></div></div>
+      </div>
+    `).join('');
+  } else {
+    document.getElementById('gapAnalysis').textContent = 'Minimal gap — strong self-awareness or acceptance.';
+    document.getElementById('gapDetails').innerHTML = '';
+  }
+
+  // Consistency check
+  const consistencyEl = document.getElementById('consistencyText');
+  const fcRanked = FN_ORDER.slice().sort((a,b) => fcScore[b] - fcScore[a]);
+  const freqRanked = FN_ORDER.slice().sort((a,b) => (freqScore[b] || 0) - (freqScore[a] || 0));
+  const topFC = fcRanked[0];
+  const topFreq = freqRanked[0];
+  const topRanked = ranked[0];
+
+  let consistency = [];
+  if(topFC === topFreq) {
+    consistency.push(`✅ Forced-choice and frequency both point to ${topFC} as dominant — strong internal consistency.`);
+  } else {
+    consistency.push(`⚡ Forced-choice favors ${topFC}, but daily behavior resembles ${topFreq}. Possible suppression or environmental shaping.`);
+  }
+
+  // Bias detection: flag when frequency self-report inflates beyond forced-choice
+  var biasFlags = [];
+  var fnPairs = [{a:'Fi',b:'Fe',l:'Feeling'},{a:'Ti',b:'Te',l:'Thinking'},{a:'Ni',b:'Ne',l:'Intuition'},{a:'Si',b:'Se',l:'Sensing'}];
+  fnPairs.forEach(function(p) {
+    var fcA = fcScore[p.a] || 0, fcB = fcScore[p.b] || 0;
+    var freqA = freqScore[p.a] || 0, freqB = freqScore[p.b] || 0;
+    var fcNormA = (fcCount[p.a] || 4) > 0 ? fcA / (fcCount[p.a] || 4) : 0;
+    var fcNormB = (fcCount[p.b] || 4) > 0 ? fcB / (fcCount[p.b] || 4) : 0;
+    var fcPref = fcNormA > fcNormB ? p.a : (fcNormB > fcNormA ? p.b : null);
+    var freqPref = freqA > freqB ? p.a : (freqB > freqA ? p.b : null);
+    if(fcPref && freqPref && fcPref !== freqPref) {
+      biasFlags.push('Frequency self-report suggests <strong>' + FN_NAMES[freqPref] + '</strong> (' + freqPref + '), but forced-choice patterns favor <strong>' + FN_NAMES[fcPref] + '</strong> (' + fcPref + '). Social desirability may have inflated the ' + freqPref + ' rating.');
+    } else if(fcPref && freqPref && fcPref === freqPref) {
+      var diff = Math.abs(freqA - freqB) - Math.abs(fcNormA - fcNormB);
+      if(diff > 0.5) {
+        biasFlags.push('Consistent preference for <strong>' + FN_NAMES[fcPref] + '</strong> in both sections. Good self-awareness on ' + p.l + '.');
+      }
+    }
+  });
+  if(biasFlags.length > 0) {
+    consistency.push('');
+    biasFlags.slice(0, 2).forEach(function(f) { consistency.push('⚠️ ' + f); });
+    if(biasFlags.length > 2) consistency.push('⚠️ ' + (biasFlags.length - 2) + ' additional minor discrepancies — consider review.');
+  }
+
+  // Energy cross-reference
+  if(energyClass === 'I' && topRanked === 'Fe') {
+    consistency.push(`🔍 <strong>Key finding:</strong> Your top function is Fe (Extraverted Feeling) but your energy profile is introverted. This is the classic INFJ/ISFJ pattern — Fe as a <em>skillful tool</em> not a <em>primary engine</em>. ESFJ/ENFJ would typically show extraverted energy. Your results likely underweight introverted types.`);
+  }
+
+  const top4Matched = topType.stack.filter(fn => ranked.slice(0,4).includes(fn)).length;
+  if(top4Matched >= 3) {
+    consistency.push(`✅ Top 4 ranked functions align with ${topType.type} (${top4Matched}/4 match).`);
+  } else if(top4Matched >= 2) {
+    consistency.push(`🔄 Top 4 partially match ${topType.type} (${top4Matched}/4).`);
+  } else {
+    consistency.push(`⚠️ Function profile doesn't strongly match any single type stack.`);
+  }
+
+  if(idealFns.length > 0) {
+    const idealInStack = idealFns.filter(f => topType.stack.includes(f)).length;
+    if(idealInStack > 0) {
+      consistency.push(`🔍 Aspiring toward functions that include part of your ${topType.type} stack — development focus.`);
+    } else {
+      consistency.push(`🔍 Aspiring toward functions (${idealFns.join(', ')}) outside your primary stack. Consider societal pressure vs genuine development.`);
+    }
+  }
+
+  consistencyEl.innerHTML = consistency.join('<br><br>');
+
+  // Stress analysis
+  const stressEl = document.getElementById('stressText');
+  const stressPatterns = [];
+  const stressHigh = STRESS.filter((_,i) => S.stress[i] >= 3);
+  const stressLow = STRESS.filter((_,i) => S.stress[i] <= 1);
+
+  if(stressHigh.length > 0) {
+    const names = stressHigh.map(q => `<span style="color:${FN_COLORS[q.fn]};font-weight:600">${q.fn}</span>`);
+    stressPatterns.push(`High stress reactivity in: ${names.join(', ')}.`);
+  }
+  const shadowFns = FN_ORDER.filter(f => !topType.stack.includes(f));
+  const stressShadow = stressHigh.filter(s => shadowFns.includes(s.fn)).length;
+  if(stressShadow > 0) {
+    stressPatterns.push(`Stress responses involve shadow functions outside your primary stack — characteristic of inferior-function grip.`);
+  }
+  if(stressLow.length >= 5) {
+    stressPatterns.push(`Low overall stress reactivity — good resilience or lower stress-awareness.`);
+  }
+  if(stressPatterns.length === 0) {
+    stressPatterns.push('No strong stress patterns detected.');
+  }
+  stressEl.innerHTML = stressPatterns.join('<br><br>');
+
+  // Free response display — uses analysis computed earlier
+  if(window._frHTML) {
+    document.getElementById('freeText').innerHTML = window._frHTML;
+  } else {
+    document.getElementById('freeText').innerHTML = 'No free responses provided. Add reflections for richer analysis.';
+  }
+  drawRadar(scores);
+  // Go to results section (7)
+  goSection(7);
+}
+
+// ===== RADAR =====
+function drawRadar(scores) {
+  const canvas = document.getElementById('radarCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const r = Math.min(W, H) * 0.35;
+  const numFn = FN_ORDER.length;
+  ctx.clearRect(0, 0, W, H);
+  for(let ring=1; ring<=5; ring++) {
+    const rad = r * ring/5;
+    ctx.beginPath();
+    for(let i=0; i<=numFn; i++) {
+      const angle = (Math.PI * 2 * i / numFn) - Math.PI/2;
+      const x = cx + rad * Math.cos(angle);
+      const y = cy + rad * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  FN_ORDER.forEach((fn, i) => {
+    const angle = (Math.PI * 2 * i / numFn) - Math.PI/2;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.stroke();
+    const lx = cx + (r + 30) * Math.cos(angle);
+    const ly = cy + (r + 30) * Math.sin(angle);
+    ctx.fillStyle = FN_COLORS[fn];
+    ctx.font = '12px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(fn, lx, ly);
+  });
+  const values = FN_ORDER.map(fn => scores[fn] || 0);
+  ctx.beginPath();
+  values.forEach((v, i) => {
+    const angle = (Math.PI * 2 * i / numFn) - Math.PI/2;
+    const rad = r * Math.min(v, 1);
+    const x = cx + rad * Math.cos(angle);
+    const y = cy + rad * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(232, 160, 64, 0.15)';
+  ctx.fill();
+  ctx.strokeStyle = '#e8a040';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  values.forEach((v, i) => {
+    const angle = (Math.PI * 2 * i / numFn) - Math.PI/2;
+    const rad = r * Math.min(v, 1);
+    const x = cx + rad * Math.cos(angle);
+    const y = cy + rad * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI*2);
+    ctx.fillStyle = '#e8a040';
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+}
+
+// ===== EXPORT (v3) =====
+function copyResults() {
+  const resultsTitle = document.getElementById('topType')?.querySelector('h2')?.textContent || '';
+  const infoLines = [resultsTitle, '', '--- Function Scores ---'];
+  document.querySelectorAll('.function-item').forEach(el => {
+    const name = el.querySelector('.fn-name')?.textContent || '';
+    const score = el.querySelector('.fn-score')?.textContent || '';
+    if(name) infoLines.push(`${name}: ${score}`);
+  });
+  infoLines.push('');
+  document.querySelectorAll('.analysis-card p, #consistencyText').forEach(el => {
+    const txt = el.textContent.trim();
+    if(txt) infoLines.push(txt);
+  });
+  navigator.clipboard.writeText(infoLines.join('\n')).then(() => {
+    alert('Results copied to clipboard!');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = infoLines.join('\n');
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    alert('Results copied to clipboard!');
+  });
+}
+
+function downloadResults() {
+  const freeTexts = [0,1,2].map(i => document.getElementById('free'+i)?.value || '');
+  const data = {
+    version: 3,
+    date: new Date().toISOString(),
+    forcedChoice: S.fc,
+    frequency: S.freq,
+    stress: S.stress,
+    energy: S.energy,
+    idealActual: S.ideal.map(d => d.a),
+    idealIdeal: S.ideal.map(d => d.i),
+    freeResponse: freeTexts
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cognitive-assessment-v3-results.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== INIT =====
+loadState();
+render();
+</script>
+</body>
+</html>
